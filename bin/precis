@@ -52,13 +52,15 @@ ARGV.each do |path|
 	end
 end
 
+zero_commits = []
+
 repos.each do |repo|
 	Dir.chdir(repo)
 
 	total_commits = `git log --oneline --since="#{since}" | wc -l`.strip
 
 	if total_commits == "0"
-		output += "There were 0 commits in #{File.basename(repo)}.\n"
+		zero_commits << File.basename(repo)
 	else
 		total_commits = total_commits == "1" ? "was #{total_commits} commit" : "were #{total_commits} commits"
 
@@ -68,6 +70,9 @@ repos.each do |repo|
 		output += "\n\n"
 	end
 end
+
+# Display the repositories with zero commits at the bottom.
+output += "Repositories with zero commits: #{zero_commits.join(', ')}"
 
 emails.each do |email|
 	send_email email, :subject => "#{period.capitalize} Git update", :body => output

@@ -9,21 +9,18 @@
 
 require 'date'
 
-output = ""
+require_relative '../lib/precis'
 
-# A quick 'n' dirty function for indenting a string; we use it for the
-# git shortlog output.
-class String
-	def indent(char, level = nil)
-		level ||= 1
-		"#{char * level}" + self.gsub(/\n/, "\n#{char * level}")
-	end
-end
+output = ""
 
 period = ARGV.shift
 unless ["daily", "weekly", "monthly"].include? period
 	period = "weekly"
 end
+
+emails = ARGV.shift
+emails = emails.split(/,/)
+emails = emails.map { |e| e.strip }
 
 # Git expects a "since" date, so we need to map our periods to a date
 now = Date.today
@@ -72,4 +69,6 @@ repos.each do |repo|
 	end
 end
 
-puts output
+emails.each do |email|
+	send_email email, :subject => "#{period.capitalize} Git update", :body => output
+end

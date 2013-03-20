@@ -1,0 +1,75 @@
+#!/usr/bin/env ruby
+#
+# precis
+#
+# Watches Git repositories, and emails you a weekly (or daily, or
+# monthly, whichever you choose) summary of the activity on them.
+#
+# Author: Rob Miller <rob@bigfish.co.uk>
+
+require 'date'
+
+output = ""
+
+# A quick 'n' dirty function for indenting a string; we use it for the
+# git shortlog output.
+class String
+	def indent(char, level = nil)
+		level ||= 1
+		"#{char * level}" + self.gsub(/\n/, "\n#{char * level}")
+	end
+end
+
+period = ARGV.shift
+unless ["daily", "weekly", "monthly"].include? period
+	period = "weekly"
+end
+
+# Git expects a "since" date, so we need to map our periods to a date
+now = Date.today
+
+case period
+when "daily"
+	since = now - 1
+when "weekly"
+	since = now - 7
+when "monthly"
+	# It's debatable whether we should do "in the current calendar
+	# month" (in which case this can only really be run on the last day
+	# of the month), or whether it should be "in the last, say, 31
+	# days", in which case it will slowly get out of sync with calendar
+	# months.
+	since = now.strftime("%Y-%m-01")
+end
+
+since = since.strftime("%Y-%m-%d")
+
+output += "Oh joy! It's the #{period} Git update.\n"
+output += "These are the stats since #{since}.\n\n"
+
+repos = []
+
+ARGV.each do |path|
+	if File.exists?(path) and File.exists?(path + "/.git")
+		repos << File.expand_path(path)
+	end
+end
+
+repos.each do |repo|
+	Dir.chdir(repo)
+
+	total_commits = `git log --oneline --since="#{since}" | wc -l`.strip
+
+	if total_commits == "0"
+		output += "There were 0 commits in #{File.basename(repo)}.\n"
+	else
+		total_commits = total_commits == "1" ? "was #{total_commits} commit" : "were #{total_commits} commits"
+
+		output += "There #{total_commits} in #{File.basename(repo)}:\n\n"
+		output += `git shortlog -ne --since="#{since}"`.strip.indent("\t")
+
+		output += "\n\n"
+	end
+end
+
+puts output

@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
 	s.name = "precis"
-	s.version = "1.0.1"
+	s.version = "1.0.2"
 	s.executables << 'precis'
 	s.date = "2013-03-20"
 	s.summary = "Summarises Git activity"

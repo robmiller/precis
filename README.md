@@ -15,8 +15,7 @@ Precis can be installed via RubyGems:
 
 For example:
 
-	% precis weekly "rob@example.com,brian@example.org"
-	/sites/example.com /sites/example.org
+	% precis weekly "rob@example.com,brian@example.org" /sites/example.com /sites/example.org
 
 Acceptable values for `period` are `daily`, `weekly`, and `monthly`. You
 can pass as many repositories as you like.

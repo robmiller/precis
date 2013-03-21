@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title><%= period.capitalize %> Report</title>
+	</head>
+	<body>
+		<p>Oh joy! It's the <%= period %> Git update.</p>
+		<p>These are the stats since <%= since %>.</p>
+
+		<% for @repo in with_commits %>
+			<p><%= @repo[:nice_name] %> has <%= @repo[:num_commits] %> total commits:</p>
+
+			<div style="margin-left:4em;">
+				<div style="margin-left:4em;">
+				<%=
+					@repo[:log]
+						.gsub(/^.* \([0-9]+\):$/, '</div><span style="font-weight:bold">\0</span><div style="margin-left:4em">')
+						.gsub(/\n/, "<br>\n")
+				%>
+				</div>
+			</div>
+		<% end %>
+
+		<p>Repositories with zero commits: <%= zero_commits.join(', ') %>.</p>
+
+	</body>
+</html>
+

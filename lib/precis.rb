@@ -19,6 +19,8 @@ def send_email(to, opts = {})
 	msg = <<END_OF_MESSAGE
 From: #{opts[:from_alias]} <#{opts[:from]}>
 To: <#{to}>
+MIME-Version: 1.0
+Content-type: text/html; charset=UTF-8
 Subject: #{opts[:subject]}
 
 #{opts[:body]}

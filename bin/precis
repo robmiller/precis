@@ -8,10 +8,12 @@
 # Author: Rob Miller <rob@bigfish.co.uk>
 
 require 'date'
+require 'erb'
+require 'letters'
 
 require_relative '../lib/precis'
 
-output = ""
+template = ERB.new File.new(File.dirname(__FILE__) + "/../templates/email.html.erb").read, nil, "%"
 
 period = ARGV.shift
 unless ["daily", "weekly", "monthly"].include? period
@@ -41,9 +43,6 @@ end
 
 since = since.strftime("%Y-%m-%d")
 
-output += "Oh joy! It's the #{period} Git update.\n"
-output += "These are the stats since #{since}.\n\n"
-
 repos = []
 
 ARGV.each do |path|
@@ -52,6 +51,7 @@ ARGV.each do |path|
 	end
 end
 
+with_commits = []
 zero_commits = []
 
 repos.each do |repo|
@@ -66,17 +66,13 @@ repos.each do |repo|
 	if total_commits == "0"
 		zero_commits << nice_name
 	else
-		total_commits = total_commits == "1" ? "was #{total_commits} commit" : "were #{total_commits} commits"
+		log_output = `git shortlog -ne --since="#{since}"`.strip.indent("\t")
 
-		output += "There #{total_commits} in #{nice_name}:\n\n"
-		output += `git shortlog -ne --since="#{since}"`.strip.indent("\t")
-
-		output += "\n\n"
+		with_commits << { :path => repo, :nice_name => nice_name, :num_commits => total_commits, :log => log_output }
 	end
 end
 
-# Display the repositories with zero commits at the bottom.
-output += "Repositories with zero commits: #{zero_commits.join(', ')}"
+output = template.result(binding)
 
 emails.each do |email|
 	send_email email, :subject => "#{period.capitalize} Git update", :body => output

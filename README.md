@@ -33,5 +33,5 @@ every night:
 
 …and one for a weekly summary; this one runs at 11pm on a Friday:
 
-	0 23 * * 5 precis daily foo@example.com /path/to/repo1 /path/to/repo2
+	0 23 * * 5 precis weekly foo@example.com /path/to/repo1 /path/to/repo2
 

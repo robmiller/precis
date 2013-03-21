@@ -57,14 +57,18 @@ zero_commits = []
 repos.each do |repo|
 	Dir.chdir(repo)
 
+	# Take the last two parts of the path as the short version of the
+	# repo.
+	nice_name = File.basename(File.dirname(repo)) + "/" + File.basename(repo)
+
 	total_commits = `git log --oneline --since="#{since}" | wc -l`.strip
 
 	if total_commits == "0"
-		zero_commits << File.basename(repo)
+		zero_commits << nice_name
 	else
 		total_commits = total_commits == "1" ? "was #{total_commits} commit" : "were #{total_commits} commits"
 
-		output += "There #{total_commits} in #{File.basename(repo)}:\n\n"
+		output += "There #{total_commits} in #{nice_name}:\n\n"
 		output += `git shortlog -ne --since="#{since}"`.strip.indent("\t")
 
 		output += "\n\n"

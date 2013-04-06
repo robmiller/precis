@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 # A quick 'n' dirty function for indenting a string; we use it for the
 # git shortlog output.
 class String
